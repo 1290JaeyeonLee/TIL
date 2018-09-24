@@ -258,7 +258,7 @@ $border-color: $color-blue; // 변수안에 변수를 사용할 수 있다.
 }
 
 @mixin pos-abs-center-vertical(){
-  postion: absolute;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
 }
