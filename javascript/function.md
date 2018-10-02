@@ -707,6 +707,30 @@ console.log(multi10(3)); // 30
 
 
 
+```js
+function calc () {
+  var store = 0; // 자유변수 
+  var add = function(a, b){
+    store += (a + b);
+  };
+  var print = function() {
+    console.log('store:', store)
+  }
+  return {
+    add: add,
+    print: print
+  }
+}
+
+var c = calc();
+c.add(10, 20);
+c.print() // store: 30
+```
+
+
+
+
+
 ---
 
 
@@ -909,4 +933,3 @@ step1(step2);
 
 
 > 책 < 모던 자바스크립트 입문 - 이소 히로시 >과  js스터디에서 배운 것을 정리하였습니다. 
-
