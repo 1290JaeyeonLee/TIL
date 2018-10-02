@@ -724,7 +724,8 @@ function calc () {
 
 var c = calc();
 c.add(10, 20);
-c.print() // store: 30
+c.add(10, 20);
+c.print() // store: 60
 ```
 
 
