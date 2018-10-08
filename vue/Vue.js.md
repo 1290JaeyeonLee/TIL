@@ -73,8 +73,7 @@ yarn global add @vue/cli
 ```
 vue create my-project
 
-// Using the GUI
-vue ui 
+vue ui   // Using the GUI
 ```
 
 
@@ -314,18 +313,119 @@ new Vue({
 
 
 
+---
+
+### 뷰 컴포넌트 통신
+
+#### 상-하위 컴포넌트 간 데이터 전달 방법 (Parent - Child 컴포넌트 통신)
+
+##### 부모와 자식 컴포넌트 관계
+
+- 구조상 상-하관계에 있는 컴포넌트의 통신
+  - Parent(상) ---- `Props를 전달` ----> Child (하)
+  - Child(하) ---- `Event를 발생` ----> Parent (상)
+
+
+
+#### Props
+
+- 모든 컴포넌트는 각 컴포넌트 자체의 스코프를 갖는다.
+  - ex) 하위 컴포넌트는 상위 컴포넌트의 값을 바로 참조할 수 없다.
+
+- 상위에서 하위로 값을 전달하려면 props 속성을 사용한다.
+
+```js
+Vue.component('child-component', {
+  props: ['passedData'],
+  template: '<p>{{passedData}}</p>' // 결과물
+});
+var app = new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue.js! from Parent Component'
+  }
+});
+```
+
+```html
+<div id="app">
+    <!-- props명 = "상위컴포넌트의 데이터" 의 구조 --> 
+  <child-component v-bind:passed-data="message"></child-component>
+</div>
+```
+
+- props 변수 명명할때 js에서  카멜 기법( ex. passedData )으로 하면 html에서는 케밥 기법 ( ex. passed-data ) 으로 해야한다.
+
+
+
+#### 같은 레벨의 컴포넌트 간 통신
+
+- 동일한 상위 컴포넌트를 가진 2개의 하위 컴포넌트 간의 통신은
+  - **Child** --> **Parent** -->  (다시 2개의)  **Children** 
+
+- Vue 기본구조상 **컴포넌트 간의 직접적인 통신**은 불가능하다. (컴포넌트는 자체 스코프를 가지므로 데이터는 다른 컴포넌트에서 직접적인 참조가 불가능)
+
+
+
+---
+
+### Event Bus
+
+#### Event Bus - 컴포넌트 간 통신
+
+- Non Parent - Child 컴포넌트 간의 통신을 위해 Event Bus를 활용할 수 있다.
+  - Event Bus를 위해 새로운 Vue를 생성하여 Vue Root Instance가 위치한 파일에 등록
+
+```js
+// Vue Root Instance 전에 꼭 등록 (순서 중요)
+export const eventBus = new Vue();
+new Vue({
+ // ...
+})
+```
+
+
+
+- 부모-자식 관계를 유지하지 않아도 모든 컴포넌트의 데이터 전달이 바로 된다.
+
+- 단점 : 컴포넌트 간의 관계가 불명확 
+  -  이벤트를 던졌을 때의 관리, 데이터 관리를 더욱 용이하게 하기위해 VueX를 사용한다.
+- 컴포넌트에서 이벤트 버스에 데이터를 보내고, 또 다른 컴포넌트에서 데이터를 받아온다. (이벤트 버스는 중간자 역할)
+
+
+
+#### 이벤트 발생
+
+- 이벤트를 발생시킬 컴포넌트에 `eventBus` import 후 `$emit` 으로 이벤트 발생
+
+```js
+import { eventBus } from '../../main';
+
+eventBus.$emit('refresh', 10); // refresh라는 이벤트, 데이터 값은 10
+```
+
+
+
+#### 이벤트 수신
+
+- 해당 이벤트를 받을 컴포넌트에도 동일하게 import 후 콜백으로 이벤트 수신
+
+```js
+import { eventBus } from '../../main';
+
+// 등록 위치는 해당 컴포넌트의 created 메서드에 등록
+created() {
+  eventBus.$on('refresh', function(data){
+    console.log(data); // 10
+  });
+}
+```
 
 
 
 
 
-
-
-
-
-
-
-
+---
 
 
 
