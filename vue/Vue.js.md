@@ -110,7 +110,7 @@ var vm = new Vue({
 
 
 
-### 뷰 인스턴스
+### Vue 인스턴스
 
 - Vue.js라이브러리를 로딩 후  `Vue` 생성자로 인스턴스를 생성한다.
   - Vue라는 기존 객체에 화면에서 사용할 옵션(데이터, 속성, 메서드 등)을 포함하여 화면의 단위를 생성한다.
@@ -239,7 +239,7 @@ var vm = new Vue({
       this.message = '1'; // 업데이트할 내용
     },
     updated: function(){
-      console.log("updated"); // 업데이트할 내용이 없으면 출력되지 X,=
+      console.log("updated"); // 업데이트할 내용이 없으면 출력되지 X
     }
   })
 </script>
@@ -251,7 +251,7 @@ var vm = new Vue({
 
 
 
-### 뷰 컴포넌트
+### Vue 컴포넌트
 
 - 화면에 비춰지는 뷰의 단위를 쪼개어 재활용이 가능한 형태로 관리하는 것
 
@@ -315,7 +315,7 @@ new Vue({
 
 ---
 
-### 뷰 컴포넌트 통신
+### Vue 컴포넌트 통신
 
 #### 상-하위 컴포넌트 간 데이터 전달 방법 (Parent - Child 컴포넌트 통신)
 
@@ -423,13 +423,279 @@ created() {
 
 
 
+---
+
+
+
+### Vue 라우터
+
+#### Vue Routers
+- 일반적으로 화면이 전환될 때 전환되는 행위를 Route라고한다.
+- Vue를 이용한 SPA를 제작할 때 유용한 라우팅 라이브러리
+- Vue 코어 라이브러리 외에 Router라이브러리를 공식 지원하고 있다.
+
+```
+// 설치
+
+npm install vue-router ( --save )
+```
+
+
+
+- Vue 라우터는  기본적으로 **RootUrl'/#/' {Router name}**의 구조로 되어있다.
+
+```
+example.com/#/user
+```
+
+- 위에서  `#` 태그 값을 제외하고 기본 URL 방식으로 요청 때마다 index.html을 받아 라우팅을 하려면 아래와 같이 mode에 history 속성을 추가한다.
+
+```js
+const router = new VueRouter({
+  routes,
+  mode: 'history'
+})
+```
+
+
+
+#### 기본 라우터
+
+##### html
+
+```html
+<div id="app">
+  <h1>Hello Vue Router</h1>
+  <p>
+    <!-- 네비게이션을 위해 router-link 컴포넌트를 사용 -->
+    <!-- 기본적으로 <router-link>는 <a>태그로 렌더링된다. --> 
+    <router-link to="/foo">Go to Foo</router-link>
+    <router-link to="/bar">Go to Bar</router-link>
+  </p>
+    
+  <!-- 현재 라우트에 맞는 컴포넌트가 렌더링된다. -->
+  <router-view></router-view>
+</div>
+```
+
+
+
+##### Javascript
+
+```js
+// 0. 모듈 시스템(ex. vue-cli)을 이용하고 있다면, Vue와 Vue라우터를 import 한다. 그리고 Vue.use (VueRouter) 를 호출한다.
+
+
+// 1. 라우트 컴포넌트를 정의한다.
+// 아래 내용들은 다른 파일로부터 가져올 수 있다.
+const Foo = { template: '<div>foo</div>' }
+const Bar = { template: '<div>bar</div>'}
+
+// 2. 라우트를 정의한다.
+// 각 라우트는 반드시 컴포넌트와 매핑되어야 한다.
+// "component"는 Vue.extend()를 통해 만들어진 
+// 실제 컴포넌트 생성자이거나 컴포넌트 옵션 객체이다.
+const routes = [
+  { path: '/foo', component: Foo },
+  { path: '/bar', component: Bar }
+]
+
+// 3. routes옵션과 함께 router 인스턴스를 만든다.
+// 추가 옵션을 여기서 전달해야한다. 
+const router = new VueRouter({
+  routes  // routes: routes의 줄임
+})
+
+// 4. 루트 인스턴스를 만들고 mount한다.
+// router와 router 옵션을 전체 앱에 주입한다.
+const app = new Vue({
+  router
+}).$mount('#app')
+```
+
+- Go to Foo 를 클릭하면 
+  - url 에 /foo가 추가된다. 
+  - 해당하는 컴포넌트를 뿌려주므로 text가 변경된다.
+
+
+
+#### Nested Routers (중첩된 라우트)
+
+- 라우터로 화면 이동시 Nested Routers 를 이용하여 여러 개의 컴포넌트를 동시에 렌더링 할 수 있다.
+- 렌더링되는 컴포넌트의 구조는 가장 큰 상위의 컴포넌트가 하위의 컴포넌트를 포함하는 (중첩된) `Parent - Child` 형태와 같다.
+
+```html
+<!-- localhost:5000 -->
+<div id="app">
+  <router-view></router-view>
+</div>
+
+<!-- localhost:5000/home -->
+<!-- parent component -->
+<div>
+  <p>Main Component rendered</p>
+  <!-- child component -->
+  <app-header></app-header>
+</div>
+```
+
+
+
+##### Nested Routers 예제
+
+```html
+<div id="app">
+  <h1>Hello Vue Nested Router!</h1>
+  <p>
+    <router-link to="/login">Go to Login</router-link>
+    <router-link to="/list">Go to List</router-link>
+  </p>
+  <router-view></router-view>
+</div>
+```
+
+```js
+var Login = {
+  template: `
+    <div>
+      Login Section
+      <router-view></router-view>
+    </div>
+  `,
+};
+
+var LoginForm = {
+  template: `
+    <form action="/" method="post">
+      <div>
+        <label for="account">Email :</label>
+        <input type="email" id="account">
+      </div>
+      <div>
+        <label for="password">Password : </label>
+        <input type="password" id="password">
+      </div>
+    </form>
+  `,
+};
+
+var List = {
+  template:`
+    <div>
+      List Section
+      <router-view></router-view>
+    </div>
+  `,
+};
+
+var ListItems = {
+  template: `
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+    </ul>
+  `,
+};
+
+var routes = [
+  {
+    path: '/login',
+    component: Login,
+    children: [
+      { path: '', component: LoginForm} // path : '' -> 상위와 같은경로
+    ] // 중첩된 outlet에 컴포넌트를 렌더링하려면 children 옵션을 사용한다.
+  },
+  {
+    path: '/list',
+    component: List,
+    children: [
+      { path: '', component: ListItems }
+    ]
+  }
+];
+
+var router = new VueRouter({
+  routes
+});
+
+var app = new Vue({
+  router
+}).$mount('#app');
+```
+
+
+
+#### 주의사항 - Vue Template Root Element
+
+- Vue의 Template에는 최상위 태그가 1개만 있어야 렌더가 가능하다.
+- 여러 개의 태그를 최상위 태그 레벨에 동시에 위치시킬 수 없다.
+
+```js
+var Foo = {
+  // div 태그 안에 텍스트와 router-view 포함하여 정상동작
+  template: `
+    <div>
+	  foo
+	  <router-view></router-view>
+    </div>
+  `
+};
+```
+
+
+
+#### Named Views (이름을 가지는 뷰)
+
+- 라우터로 특정 URL로 이동시, 특정 URL에 해당하는 여러 개의 View(컴포넌트)를 동시에 렌더링 한다.
+- 각 컴포넌트에 해당하는 `name` 속성과 `router-view` 지정 필요
+
+```html
+<div id="app">
+  <router-view name="nestedHeader"></router-view>
+  <router-view></router-view> <!-- default -->
+</div>
+```
+
+```js
+{
+  path: '/home',
+  // Named Router
+  components: {
+    nestedHeader: AppHeader,
+    default: Body
+  }
+},
+```
+
+
+
+#### Nested Routes 와 Named Views 차이점
+
+- Nested Routes : 특정 URL에서 1개의 컴포넌트(부모)안에 여러 개의 하위 컴포넌트(자식)를 갖는 것
+- Named Views : 특정 URL에서 여러 개의 컴포넌트를 쪼개진 뷰 단위로 렌더링 하는 것 (중첩 X)
+
 
 
 ---
 
 
 
+### Vue 템플릿
 
+#### Vue Templates
+
+Vue로 그리는 화면의 요소들, 함수, 데이터 속성은 모두 Templates 안에 포함된다.
+
+- Vue는 DOM의 요소와 Vue인스턴스를 매핑할 수 있는 HTML Template 을 사용한다.
+  - 
+- Vue는 Template으로 렌더링할 때 Virtual DOM을 사용하여 DOM조작을 최소화하고 렌더링을 꼭 다시 해야만 하는 요소를 계산하여 성능 부하를 최소화한다.
+
+- 원하면 render function을 직접 구현하여 사용할 수 있다.
+
+
+
+---
 
 #### 지시자(Directives)
 
@@ -463,6 +729,14 @@ var vm = new Vue({
 
 
 
+
+
+
+
+
+
+
+
 > 참고 링크
 >
 > [인프런 강의 - 누구나 다루기 쉬운 Vue.js 프론트 개발 – 3시간 안에 배우기](https://www.inflearn.com/course/vue-pwa-vue-js-%EA%B8%B0%EB%B3%B8/)
@@ -470,6 +744,9 @@ var vm = new Vue({
 > [자바스크립트 프레임워크 소개 3 - Vue.js](https://meetup.toast.com/posts/99)
 > [Vue.js 공식가이드](https://kr.vuejs.org/v2/guide/)
 >
+> [Vue Router](https://router.vuejs.org/kr/)
+>
 > [디자인패턴 - MVC, MVP, MVVM 비교](http://beomy.tistory.com/43)
+>
 > [MVC, MVP, MVVM, MVI](https://brunch.co.kr/@oemilk/113)
 
