@@ -688,7 +688,6 @@ var Foo = {
 Vue로 그리는 화면의 요소들, 함수, 데이터 속성은 모두 Templates 안에 포함된다.
 
 - Vue는 DOM의 요소와 Vue인스턴스를 매핑할 수 있는 HTML Template 을 사용한다.
-  - 
 - Vue는 Template으로 렌더링할 때 Virtual DOM을 사용하여 DOM조작을 최소화하고 렌더링을 꼭 다시 해야만 하는 요소를 계산하여 성능 부하를 최소화한다.
 
 - 원하면 render function을 직접 구현하여 사용할 수 있다.
