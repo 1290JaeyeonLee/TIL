@@ -694,17 +694,72 @@ Vue로 그리는 화면의 요소들, 함수, 데이터 속성은 모두 Templat
 
 
 
----
+#### Attributes 
+
+- HTML Attributes를 Vue의 변수와 연결할때는 `v-bind` 를 이용한다.
+
+```html
+<div v-bind:id="dynamicId"></div>
+```
+
+
+
+#### Javascript Expressions
+
+- ` {{  }} ` 안에 다음과 같이 Javascipt 표현식도 가능하다.
+- 이 표현식은 Vue 인스턴스 범위 내에서 Javascript로 계산된다.
+- 각 바인딩에 하나의 단일 표현식만 포함할 수 있다.
+
+```html
+<div>{{ number + 1 }}</div> 
+<!-- O(지향함) -->
+
+<div>{{ message.split('').reverse().join('') }}</div> 
+<!-- O(허용함, 지양함) -->
+
+<div>{{ if (ok) { return message } }}</div> 
+<!-- X( 구문이나 조건문은 허용하지 않음, 대신에 삼항 연산자를 사용하기) -->
+```
+
+
 
 #### 지시자(Directives)
 
 - HTML 컴파일러가 실행될 때 해당 DOM을 찾기 위해 사용되는 특별한 형태의 속성
-- 접두사 `v-`로 시작하며 스타일에서부터 이벤트까지 DOM을 다룰 수 있는 모든 범위에서 다양한 지시자를 제공한다.
+
+- 접두사 `v-`로 시작하는 attribute로 스타일에서부터 이벤트까지 DOM을 다룰 수 있는 모든 범위에서 다양한 지시자를 제공한다.
+
+- 일부 디렉티브는 `:`를 붙여 **전달 인자**를 받아 취급할 수 있다.
+
+
+
+- 아래 코드에서 `v-if`디렉티브는 seen 표현의 진실성에 기반하여 <p>엘리먼트를 제거 또는 삽입한다.
+
+```html
+<p v-if="seen">Now you see me</p>
+<!-- true이면 보이고, false이면 보이지 않음 -->
+```
+
+
+
+- `v-bind` 디렉티브 : 반응적으로 HTML 속성을 갱신하는데 사용된다.
+- 아래 코드에서 href는 전달인자로, 엘리먼트의 href속성을 표현식 url의 값에 바인드하는 `v-bind` 디렉티브에게 알려준다. 
+```html
+<a v-bind:href="url"></a>
+<!-- : 뒤에 선언한 href 인자를 받아 url 값이랑 매핑 -->
+```
+
+
+
+- `v-on` 디렉티브 : DOM 이벤트를 수신한다. 전달인자는 이벤트를 받을 이름이다.
+
+- 아래 코드에서 `v-on` 지시자를 가진 버튼을 추가한 후 클릭 이벤트를 발생시키면 name값이 자동으로 업데이트 된다.
 
 ```html
 <div id="example">
   <p>My framework is {{ name + '!' }}</p>
   <button v-on:click="changeName">Change</button>
+  <!-- click이라는 이벤트를 받아 Vue에 넘겨준다. -->
 </div>
 ```
 
@@ -722,7 +777,138 @@ var vm = new Vue({
 });
 ```
 
-- `v-on` 지시자를 가진 버튼을 추가한 후 클릭 이벤트를 발생시키면 name값이 자동으로 업데이트 된다.
+
+
+#### Filter
+
+- 화면에 표시되는 텍스트의 형식을 편하게 바꿀수 있도록 고안된 기능이며, `|`을 이용하여 여러 개의 필터를 적용할 수 있다.
+- 중괄호 보간법 혹은 v-bind 표현법을 이용할 때 사용가능하다.
+
+```html
+<!-- message에 표시될 문자에 capitalize 필터를 적용하여 첫 글자를 대문자로 변경한다. -->
+
+{{ message | capitalize }} <!-- 중괄호 보간법 -->
+
+<div v-bind:id="rawId | formatId"></div> <!-- v-bind 표현법 -->
+```
+
+```js
+new Vue({
+  //...
+  filters: { // filter 정의
+    capitalize: function (value) {
+      if(!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+  }
+})
+```
+
+
+
+---
+
+
+
+### Vue 데이터 바인딩
+
+#### Data Binding
+
+- DOM 기반 HTML Template에 Vue 데이터를 바인딩하는 방법은 아래와 같이 크게  3가지가 있다.
+  - Interpolation ( 값 대입 )
+  - Binding Expressions ( 값 연결 )
+  - Directives ( 디렉티브 사용 )
+
+
+
+#### Interpolation ( 값 대입 )
+
+- Vue의 가장 기본적인 데이터 바인딩 체계는 Mustache `{{ }}`를 따른다.
+
+```html
+<span>Message: {{ msg }}</span>
+<span>This will never change: {{* msg }}</span>  
+<!-- {{* msg }} : 예전 문법, msg라는 값이 한 번 들어가면 바껴도 값이 변하지 않는다.   리액티브 시스템 적용X -->
+<!-- 이제는 위 코드 대신 아래 코드를 사용한다. -->
+ <span v-once>{{ msg }}</span> 
+```
+
+
+
+#### Binding Expression
+
+- `{{ }}` 를 이용한 데이터 바인딩을 할 때 자바스크립트 표현식을 사용할 수 있다.
+
+```html
+<div>{{ number + 1 }}</div>
+<div>{{ message.split('').reverse().join('') }} </div>
+```
+
+- Vue에 내장된 Filter를 `{{ }}` 안에 사용할 수 있다. 여러 개 필터 체인 가능
+
+```js
+{{ message | capitalize }}
+{{ message | capitalize | upcapitalize }}
+```
+
+
+
+
+
+#### Directives
+
+- Vue에서 제공하는 특별한  Attributes이며 `v-` 의 prefix(접두사)를 갖는다.
+- 자바스크립트 표현식, filter 모두 적용된다.
+
+```html
+<!-- login의 결과에 따라 p가 존재 또는 미존재 -->
+<p v-if="login">Hello!</p>
+
+<!-- click = {{doSomething}} 와 같은 역할 -->
+<a v-on:click="doSomething">
+```
+
+
+
+#### Class Binding
+
+- CSS 스타일링을 위해서 class를 아래 방법으로 추가 가능하다.
+  - `v-bind:class`
+
+  - `class="{{ className }}"`  -> Vue2.4버전 부터는 제거된 문법
+
+- 아래와 같이 `class`속성과  `v-bind:class ` 속성을 동시에 사용해도 된다.
+
+```html
+<div class="static" v-bind:class="{ 'class-a': isA, 'class-b': isB}"></div> // 주의 :  중괄호 한개
+<script>
+  data: {
+    isA: true,
+    isB: false
+  }
+<script>
+```
+
+- 위 코드의  결과값은 다음과 같다.
+
+```html
+<div class="static class-a"></div>
+```
+
+
+
+- 아래와 같이 Array구문도 사용할 수 있다.
+
+```html
+<div v-bind:class="[classA, classB]"></div>
+<script>
+    data: {
+      classA: 'class-a',
+      classB: 'class-b'  
+    }
+</script>
+```
 
 
 
@@ -733,6 +919,7 @@ var vm = new Vue({
 
 
 
+<br>
 
 
 
@@ -741,6 +928,7 @@ var vm = new Vue({
 > [인프런 강의 - 누구나 다루기 쉬운 Vue.js 프론트 개발 – 3시간 안에 배우기](https://www.inflearn.com/course/vue-pwa-vue-js-%EA%B8%B0%EB%B3%B8/)
 >
 > [자바스크립트 프레임워크 소개 3 - Vue.js](https://meetup.toast.com/posts/99)
+>
 > [Vue.js 공식가이드](https://kr.vuejs.org/v2/guide/)
 >
 > [Vue Router](https://router.vuejs.org/kr/)
